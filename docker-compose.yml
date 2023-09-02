@@ -1,15 +1,6 @@
 version: '3.9'
 
 services:
-  db:
-    image: postgres
-    volumes:
-      - ./data/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-
   app:
     build:
       context: .
@@ -20,6 +11,7 @@ services:
     volumes:
       - ./app:/app
     environment:
+      - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -27,4 +19,17 @@ services:
       - db
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
-    
+    restart: always
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+volumes:
+  dev-db-data:
